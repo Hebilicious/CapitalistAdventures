@@ -1,11 +1,11 @@
+// // import localforage from "localforage" This should be used instead, however Vite makes us have to do that  :'(
 import localforage from "../node_modules/localforage/src/localforage"
 import { useGlobalStore } from "./useGlobalStore"
 import { useBusiness } from "./useBusiness"
 
 import { toRaw } from "vue"
-// // import localforage from "localforage"
 
-const maxEntries = 20
+const maxEntries = 50
 
 const globalStore = localforage.createInstance({
     driver: localforage.INDEXEDDB,
@@ -23,6 +23,10 @@ const businessStore = localforage.createInstance({
     description: "Business Data"
 })
 
+/**
+ * This make sure the store doesn't get too big.
+ * @param store
+ */
 const clearStore = async (store) => {
     //If we have less than n entries
     const length = await store.length()
@@ -33,10 +37,13 @@ const clearStore = async (store) => {
     return store.clear()
 }
 
-// const { restoreMoney } = useGlobalStore()
-
 export const useSaveState = () => {
     const makeUniqueId = (type = "item", id) => `${Date.now()}-${type}-${id}`
+
+    /**
+     * Save a businessList proxy into the indexedDB
+     * @param param0
+     */
     const saveBusinessList = async ({ id, businessList }) => {
         console.log("Saving business")
         try {
@@ -57,6 +64,11 @@ export const useSaveState = () => {
             console.error("Error while saving business", error)
         }
     }
+
+    /**
+     * Save the player money into the indexedDB
+     * @param param0
+     */
     const saveMoney = async ({ timestamp = Date.now(), money }) => {
         try {
             await clearStore(globalStore)
@@ -66,6 +78,10 @@ export const useSaveState = () => {
             console.error("Error while saving money", error)
         }
     }
+
+    /**
+     * Restore the money
+     */
     const restoreGlobal = async () => {
         const { restoreMoney } = useGlobalStore()
         const globalKeys = []
@@ -78,6 +94,10 @@ export const useSaveState = () => {
         const { money } = await globalStore.getItem(latestGlobalKey)
         restoreMoney({ money })
     }
+
+    /**
+     * Restore the businesses
+     */
     const restoreBusinesses = async () => {
         const { restoreSavedBusiness } = useBusiness()
         const businessKeys = []
@@ -91,6 +111,10 @@ export const useSaveState = () => {
         const { businesses } = await businessStore.getItem(latestBusinessKey)
         restoreSavedBusiness({ businesses, timestamp })
     }
+
+    /**
+     * Handle the offline state restoration
+     */
     const restoreSavedState = async () => {
         console.log("Restoring saved state...")
         await restoreGlobal()

@@ -16,7 +16,7 @@ const businessList = ref([
                 name: "Lemon",
                 price: 2,
                 tts: 1,
-                capacityGrowth: (q) => Math.exp(q * 0.25),
+                capacityGrowth: (q) => Math.exp(q * 0.21),
                 currentCapacity: 1,
                 sold: 0,
                 beingSold: false,
@@ -25,9 +25,9 @@ const businessList = ref([
             {
                 itemId: 1,
                 name: "Lemonade",
-                price: 4.5,
+                price: 4,
                 tts: 2,
-                capacityGrowth: (q) => Math.exp(q * 0.3),
+                capacityGrowth: (q) => Math.exp(q * 0.22),
                 currentCapacity: 1,
                 sold: 0,
                 beingSold: false,
@@ -38,7 +38,7 @@ const businessList = ref([
                 name: "Lemon Smoothie",
                 price: 6,
                 tts: 3,
-                capacityGrowth: (q) => Math.exp(q * 0.32),
+                capacityGrowth: (q) => Math.exp(q * 0.23),
                 currentCapacity: 1,
                 sold: 0,
                 beingSold: false,
@@ -59,7 +59,7 @@ const businessList = ref([
                 name: "Daily Burgle",
                 price: 10,
                 tts: 8,
-                capacityGrowth: (q) => Math.exp(q * 0.35),
+                capacityGrowth: (q) => Math.exp(q * 0.24),
                 currentCapacity: 1,
                 sold: 0,
                 beingSold: false,
@@ -70,7 +70,7 @@ const businessList = ref([
                 name: "The Wildest Duck",
                 price: 15,
                 tts: 12,
-                capacityGrowth: (q) => Math.exp(q * 0.4),
+                capacityGrowth: (q) => Math.exp(q * 0.25),
                 currentCapacity: 1,
                 sold: 0,
                 beingSold: false,
@@ -89,9 +89,9 @@ const businessList = ref([
             {
                 itemId: 20,
                 name: "Rum",
-                price: 100,
+                price: 30,
                 tts: 20,
-                capacityGrowth: (q) => Math.exp(q * 0.4),
+                capacityGrowth: (q) => Math.exp(q * 0.3),
                 currentCapacity: 1,
                 sold: 0,
                 beingSold: false,
@@ -100,9 +100,9 @@ const businessList = ref([
             {
                 itemId: 21,
                 name: "Whiskey",
-                price: 120,
+                price: 40,
                 tts: 25,
-                capacityGrowth: (q) => Math.exp(q * 0.42),
+                capacityGrowth: (q) => Math.exp(q * 0.32),
                 currentCapacity: 1,
                 sold: 0,
                 beingSold: false,
@@ -121,9 +121,9 @@ const businessList = ref([
             {
                 itemId: 30,
                 name: "Spaceship",
-                price: 10000,
-                tts: 80,
-                capacityGrowth: (q) => Math.exp(q * 0.55),
+                price: 100000,
+                tts: 120,
+                capacityGrowth: (q) => Math.exp(q * 0.5),
                 currentCapacity: 1,
                 sold: 0,
                 beingSold: false,
@@ -132,9 +132,9 @@ const businessList = ref([
             {
                 itemId: 31,
                 name: "Fusion Reactor",
-                price: 1000000,
+                price: 10000000,
                 tts: 800,
-                capacityGrowth: (q) => Math.exp(q * 0.75),
+                capacityGrowth: (q) => Math.exp(q * 0.65),
                 currentCapacity: 1,
                 sold: 0,
                 beingSold: false,
@@ -144,8 +144,8 @@ const businessList = ref([
                 itemId: 32,
                 name: "Dyson Sphere",
                 price: 1500000000000000,
-                tts: 900,
-                capacityGrowth: (q) => Math.exp(q * 0.85),
+                tts: 1800,
+                capacityGrowth: (q) => Math.exp(q * 0.8),
                 currentCapacity: 1,
                 sold: 0,
                 beingSold: false,
@@ -243,6 +243,11 @@ export const useBusiness = () => {
         }, count * 1000)
     }
 
+    /**
+     * Restore the businessList from the indexedDB
+     * @param businesses Business List
+     * @param timestamp
+     */
     const restoreSavedBusiness = ({ businesses, timestamp }) => {
         console.log(`Restoring saved business from ${timestamp}...`)
         const currentTime = Date.now()

@@ -54,5 +54,6 @@ _No other dependencies/frameworks were used._
 -   Ux: Handle different screen sizes/devices
 -   Gameplay : Business Upgrades, Items upgrades, Item Shop, Achievements ...
 -   Performances : Queue system with batch write.
+-   Best practise : Implement Service worker to handle client updates with precision
 -   Server components : Authentication && Save logic
 -   Server component : API based - Server side logic for money things, to avoid client side tampering
