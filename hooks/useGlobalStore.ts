@@ -3,7 +3,7 @@ import { useSaveState } from "./useSaveState"
 
 const { saveMoney } = useSaveState()
 
-const state = reactive({ money: 500 })
+const state = reactive({ money: 10000 })
 
 /**
  * Add money helper
