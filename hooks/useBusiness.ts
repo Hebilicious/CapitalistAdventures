@@ -32,6 +32,17 @@ const businessList = ref([
                 sold: 0,
                 beingSold: false,
                 timeLeft: 0
+            },
+            {
+                itemId: 2,
+                name: "Lemon Smoothie",
+                price: 6,
+                tts: 3,
+                capacityGrowth: (q) => Math.exp(q * 0.32),
+                currentCapacity: 1,
+                sold: 0,
+                beingSold: false,
+                timeLeft: 0
             }
         ]
     },
@@ -209,11 +220,14 @@ export const useBusiness = () => {
         //We start a countdown ...
         item.beingSold = true
         const count = item.timeLeft === 0 ? item.tts : item.timeLeft
+        let tracker = count
         const ttsCountdown = () => {
             saveBusinessList({ id: makeUniqueId("item", item.itemId), businessList })
-            progress.value.innerHTML = item.timeLeft
-            item.timeLeft = item.timeLeft - 1
+            progress.value.innerHTML = tracker
+            tracker = tracker - 1
+            item.timeLeft = tracker
         }
+
         ttsCountdown()
         //We run the countdown every second
         const countdown = setInterval(ttsCountdown, 1000)
@@ -226,7 +240,7 @@ export const useBusiness = () => {
             item.timeLeft = 0
             clearInterval(countdown)
             saveBusinessList({ id: makeUniqueId("item", item.itemId), businessList })
-        }, count)
+        }, count * 1000)
     }
 
     const restoreSavedBusiness = ({ businesses, timestamp }) => {
@@ -255,13 +269,26 @@ export const useBusiness = () => {
                         currentCapacity,
                         capacityGrowth,
                         sold: sold + offlineSales,
-                        timeLeft: trueTimeLeft,
+                        timeLeft: Math.trunc(trueTimeLeft / 1000),
                         beingSold: trueTimeLeft === 0 ? false : true
                     }
                 }
                 return { ...i, sold, timeLeft, currentCapacity, capacityGrowth }
             })
-            //Commit the changes
+            //Merge eventual new items
+            const savedItems = newBusiness.items.map((item) => item.itemId)
+            const dataItems = business.items.map((item) => item.itemId)
+            //Diff the item ids
+            const newItems = savedItems
+                .filter((a) => !dataItems.includes(a))
+                .concat(dataItems.filter((b) => !savedItems.includes(b)))
+            //If we have new items we add them ...
+            if (newItems.length !== 0) {
+                newItems.forEach((id) => {
+                    const item = business.items.find((item) => item.itemId === id)
+                    newBusiness.items.push(item)
+                })
+            }
             console.log(`New business`, newBusiness)
             return newBusiness
         })

@@ -52,7 +52,7 @@ export const useSaveState = () => {
                 businesses,
                 timestamp: Date.now()
             })
-            console.log({ id, businesses, businessSaved })
+            // console.log({ id, businesses, businessSaved })
         } catch (error) {
             console.error("Error while saving business", error)
         }
@@ -61,7 +61,7 @@ export const useSaveState = () => {
         try {
             await clearStore(globalStore)
             const moneySaved = await globalStore.setItem(`${timestamp}`, { money, timestamp })
-            console.log({ timestamp, money, moneySaved })
+            // console.log({ timestamp, money, moneySaved })
         } catch (error) {
             console.error("Error while saving money", error)
         }
@@ -89,7 +89,6 @@ export const useSaveState = () => {
         const timestamp = businessKeys.map((key) => key.split("-")[0]).sort((a, b) => b - a)[0]
         const latestBusinessKey = businessKeys.find((key) => key.includes(timestamp))
         const { businesses } = await businessStore.getItem(latestBusinessKey)
-        console.log(businesses)
         restoreSavedBusiness({ businesses, timestamp })
     }
     const restoreSavedState = async () => {
