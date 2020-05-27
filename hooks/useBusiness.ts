@@ -1,5 +1,6 @@
 import { ref } from "vue"
 import { useGlobalStore } from "../hooks/useGlobalStore"
+import { useSaveState } from "../hooks/useSaveState"
 
 const businessList = ref([
     {
@@ -145,6 +146,7 @@ const businessList = ref([
 
 export const useBusiness = () => {
     const { money, addMoney, removeMoney } = useGlobalStore()
+    const { saveBusinessList, makeUniqueId } = useSaveState()
     /**
      * Buy a business
      */
@@ -158,6 +160,7 @@ export const useBusiness = () => {
         }
         removeMoney({ money: price })
         business.owned = true
+        saveBusinessList({ id: makeUniqueId("business", business.businessId), businessList })
     }
 
     /**
@@ -173,6 +176,7 @@ export const useBusiness = () => {
         }
         removeMoney({ money: managerPrice })
         business.hasManager = true
+        saveBusinessList({ id: makeUniqueId("business", business.businessId), businessList })
     }
 
     /**
@@ -190,6 +194,7 @@ export const useBusiness = () => {
         console.log("removing money")
         removeMoney({ money: price })
         item.currentCapacity = item.currentCapacity + 1
+        saveBusinessList({ id: makeUniqueId("item", item.itemId), businessList })
     }
 
     /**
@@ -203,11 +208,11 @@ export const useBusiness = () => {
         disableSell.value = true
         //We start a countdown ...
         item.beingSold = true
-        let count = item.tts
+        const count = item.timeLeft === 0 ? item.tts : item.timeLeft
         const ttsCountdown = () => {
-            progress.value.innerHTML = count
-            item.timeLeft = count
-            count = count - 1
+            saveBusinessList({ id: makeUniqueId("item", item.itemId), businessList })
+            progress.value.innerHTML = item.timeLeft
+            item.timeLeft = item.timeLeft - 1
         }
         ttsCountdown()
         //We run the countdown every second
@@ -220,8 +225,49 @@ export const useBusiness = () => {
             item.sold = item.sold + item.currentCapacity
             item.timeLeft = 0
             clearInterval(countdown)
-        }, item.tts * 1000)
+            saveBusinessList({ id: makeUniqueId("item", item.itemId), businessList })
+        }, count)
     }
 
-    return { businessList, buyBusiness, buyManager, increaseCapacity, sellItem }
+    const restoreSavedBusiness = ({ businesses, timestamp }) => {
+        console.log(`Restoring saved business from ${timestamp}...`)
+        const currentTime = Date.now()
+        const elapsedTime = currentTime - timestamp
+        const newBusinessList = businessList.value.map((business) => {
+            const savedBusiness = businesses.find((b) => b.businessId === business.businessId)
+            //Set the business properties ...
+            const newBusiness = { ...business, ...savedBusiness }
+            //Set the function and handle offline sales
+            newBusiness.items = newBusiness.items.map((i) => {
+                const { price, currentCapacity, tts, timeLeft, sold } = i
+                const { capacityGrowth } = business.items.find((si) => si.itemId === i.itemId)
+                //If the business has a manager
+                if (newBusiness.hasManager === true) {
+                    const offlineSales = Math.trunc((timeLeft * 1000 + elapsedTime) / (tts * 1000))
+                    const trueTimeLeft = (timeLeft * 1000 + elapsedTime) % (tts * 1000)
+                    //Add the money from the offline sales
+                    const money = price * currentCapacity * offlineSales
+                    console.log(`Adding ${money} $ from ${offlineSales} ${i.name} offline sales ...`)
+                    addMoney({ money })
+                    //Return the item with the correct properties
+                    return {
+                        ...i,
+                        currentCapacity,
+                        capacityGrowth,
+                        sold: sold + offlineSales,
+                        timeLeft: trueTimeLeft,
+                        beingSold: trueTimeLeft === 0 ? false : true
+                    }
+                }
+                return { ...i, sold, timeLeft, currentCapacity, capacityGrowth }
+            })
+            //Commit the changes
+            console.log(`New business`, newBusiness)
+            return newBusiness
+        })
+        console.log(newBusinessList)
+        businessList.value = newBusinessList
+    }
+    console.log("Using Business")
+    return { businessList, buyBusiness, buyManager, increaseCapacity, sellItem, restoreSavedBusiness }
 }

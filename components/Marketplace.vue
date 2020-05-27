@@ -19,6 +19,8 @@
 import Business from "./Business.vue"
 import { useBusiness } from "../hooks/useBusiness"
 import { useGlobalStore } from "../hooks/useGlobalStore"
+import { onMounted } from "vue"
+import { useSaveState } from "../hooks/useSaveState"
 
 export default {
     name: "Marketplace",
@@ -26,6 +28,15 @@ export default {
     setup() {
         const { businessList, buyBusiness, buyManager } = useBusiness()
         const { money, addMoney, removeMoney } = useGlobalStore()
+        const { restoreSavedState } = useSaveState()
+        onMounted(async () => {
+            try {
+                await restoreSavedState()
+            } catch (error) {
+                console.log("ERROR HERE")
+                console.error(error)
+            }
+        })
         return { businessList, buyBusiness, buyManager, money }
     }
 }

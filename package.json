@@ -6,10 +6,12 @@
         "build": "vite build"
     },
     "dependencies": {
+        "localforage": "^1.7.3",
         "vue": "^3.0.0-beta.14"
     },
     "devDependencies": {
         "@vue/compiler-sfc": "^3.0.0-beta.14",
+        "eslint": "^7.1.0",
         "vite": "^0.16.6"
     }
 }
